@@ -34,7 +34,7 @@ class ChatSession:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_entry = f"[{timestamp}] {role}: {content}\n"
         
-        with open("chat_history.txt", "a", encoding="utf-8") as f:
+        with open("chat_history.log", "a", encoding="utf-8") as f:
             f.write(log_entry)
             
     def print_fragment(self, fragment, round_index=0):
