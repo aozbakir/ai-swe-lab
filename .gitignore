@@ -1,0 +1,43 @@
+# Ignore build artifacts
+*.egg-info/
+build/
+dist/
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Ignore Jupyter notebook checkpoints and virtual docs
+**/.ipynb_checkpoints/
+**/.virtual_documents/
+
+# Ignore notebook directory
+notebooks/
+
+# Ignore documentation and book source
+docs/
+book/
+
+# Ignore VS Code and other IDE/editor settings
+.vscode/
+.idea/
+*.swp
+
+# Ignore logs and temp files
+*.log
+*.tmp
+*.bak
+
+# Ignore environment files
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,23 @@
+name: im2203
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+  - torchaudio
+  - transformers
+  - langchain
+  - pydantic
+  - scipy
+  - nltk
+  - jupyterlab
+  - pip
+  - pip:
+      - fastmcp
+      - lmstudio
+      - chromadb
+      - pypdf
+      - pinecone-client
