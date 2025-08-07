@@ -1,0 +1,29 @@
+@startuml stroopwafel
+left to right direction
+
+actor "Vendor" as Vendor
+actor "Staff Member" as Staff
+actor "Scheduler" as Scheduler
+actor "Sales Analyst" as Analyst
+actor "System Admin" as Admin
+
+rectangle "Automated Report System" {
+  usecase "Process Sales Files\n(in Shared Folder)\nas detected" as UC1
+  usecase "Generate Weekly Report" as UC2
+  usecase "Send Report to\nSales Team" as UC3
+  usecase "Review Logs and\nReports" as UC4
+  usecase "Maintain System and\nUpdate Configurations" as UC5
+}
+
+Vendor --> Staff : Sends Sales Email
+Staff --> UC1 : Save Attachments to Folder
+
+Scheduler --> UC1 : Trigger Processing (on new files)
+Scheduler --> UC2 : Trigger Report Generation (weekly schedule)
+Scheduler --> UC3 : «optional» Trigger Report Sending
+
+Analyst --> UC4 : Review Outputs and Logs
+Admin --> UC4 : Review Logs and Status
+Admin --> UC5 : Maintain and Configure System
+
+@enduml
