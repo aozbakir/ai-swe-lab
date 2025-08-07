@@ -1,28 +1,45 @@
 from datetime import datetime
 from functools import wraps
 import logging
+import textwrap
 
 import lmstudio as lms
 
-from im2203.agentic_chat.prompts import CHAT_ASSISTANT_PROMPT
+from im2203.agentic_chat.prompts import CHAT_ASSISTANT_PROMPT, SALES_ANALYST_PROMPT
 from im2203.agentic_chat.tools import Tools
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+SALES_ANALYST_PROMPT
+
+# ANSI escape codes
+RESET = "\033[0m"
+BOLD = "\033[1m"
+BLUE = "\033[34m"
+GREEN = "\033[32m"
+BOLD_BLUE = f"{BOLD}{BLUE}"
+BOLD_GREEN = f"{BOLD}{GREEN}"
 
 def trace_tool(tool_fn):
     @wraps(tool_fn)
     def wrapper(*args, **kwargs):
-        GREEN = "\033[1;32m"
-        RESET = "\033[0m"
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        message = f"[{timestamp}] TOOL: {tool_fn.__name__} called with args: {args}, kwargs: {kwargs}"
+
         logging.info(f"{GREEN}[TOOL CALL] {tool_fn.__name__} called with args: {args}, kwargs: {kwargs}{RESET}")
+
+        # Also log to chat history file
+        with open("chat_history.log", "a", encoding="utf-8") as f:
+            f.write(message + "\n")
         return tool_fn(*args, **kwargs)
     return wrapper
 
 class ChatSession:
-    def __init__(self):
+    def __init__(self, use_prompt=CHAT_ASSISTANT_PROMPT):
         self.model = lms.llm()
-        self.chat = lms.Chat(CHAT_ASSISTANT_PROMPT)
+        self.chat = lms.Chat(use_prompt)
         self.tools = Tools.get_tools(trace_tool)
+        
 
     def log_message(self, role: str, content: str) -> None:
         """Log a chat message to the chat history file.
@@ -32,10 +49,11 @@ class ChatSession:
             content: The message content
         """
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log_entry = f"[{timestamp}] {role}: {content}\n"
+        wrapped_content = textwrap.fill(content, width=80, subsequent_indent="    ")
+        log_entry = f"[{timestamp}] {role.upper()}:\n{wrapped_content}"
         
         with open("chat_history.log", "a", encoding="utf-8") as f:
-            f.write(log_entry)
+            f.write(log_entry+ "\n")
             
     def print_fragment(self, fragment, round_index=0):
         # .act() supplies the round index as the second parameter
@@ -49,15 +67,15 @@ class ChatSession:
         self.log_message("user", message)
 
         self.chat.add_user_message(message)
-        print("Bot: ", end="", flush=True)
+        print(f"{BOLD_GREEN}Bot:{RESET} ", end="", flush=True)
         
         # Capture bot's response for logging
         response_chunks = []
 
         def log_fragment(fragment, round_index=0):
                 response_chunks.append(fragment.content)
-                print(fragment.content, end="", flush=True)
-
+                print(f"{BOLD_GREEN}{fragment.content}{RESET}", end="", flush=True)
+        
         self.model.act(
             self.chat,
             tools=self.tools,
@@ -77,7 +95,7 @@ class ChatSession:
         """Run an interactive chat session."""
         while True:
             try:
-                user_input = input("You (leave blank to exit): ")
+                user_input = input(f"{BOLD_BLUE}You (leave blank to exit): {RESET}")
             except EOFError:
                 print()
                 break
@@ -87,11 +105,9 @@ class ChatSession:
                 
             self.process_message(user_input)
 
-
-
 def main():
     """Run the chat agent."""
-    session = ChatSession()
+    session = ChatSession(SALES_ANALYST_PROMPT)
     session.run()
 
 if __name__ == "__main__":
