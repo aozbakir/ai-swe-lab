@@ -13,7 +13,7 @@ Each folder is either:
 
 ---
 
-🗨️ agentic_chat/ — Agent-Based Chat with Tools + LLMs
+🗨️ agentic_chat/ — Agent-Based Chat with Tools + LLMs  
 A minimal agentic chat system showing how to integrate FastMCP tool servers with LM Studio:
  - server.py – exposes Python functions (tools) like wiki_search via FastMCP
  - chat_agent.py – connects to LM Studio, streams tokens, invokes tools on-the-fly
@@ -27,7 +27,7 @@ A minimal agentic chat system showing how to integrate FastMCP tool servers with
 
 ---
 
-🔎 rag/ — Retrieval-Augmented Generation Pipeline
+🔎 rag/ — Retrieval-Augmented Generation Pipeline  
 A full RAG (Retrieval-Augmented Generation) system that:
 - Ingests and preprocesses legal documents (EU AI Act)
 - Chunks them into coherent segments
@@ -38,7 +38,7 @@ A full RAG (Retrieval-Augmented Generation) system that:
 
 ---
 
-🧾 requirement_eng/ — LLM-Powered Requirements Engineering Assistant
+🧾 requirement_eng/ — LLM-Powered Requirements Engineering Assistant  
 - An interactive assistant for managing software requirements:
 - Elicits stakeholder needs through guided Q&A
 - Converts informal input into structured templates
@@ -48,7 +48,7 @@ A full RAG (Retrieval-Augmented Generation) system that:
 
 ---
 
-📊 auto_report/ — Automated Weekly Reporting System
+📊 auto_report/ — Automated Weekly Reporting System  
 A data-processing and reporting pipeline that:
 - Parses inconsistent Excel or CSV files
 - Normalizes messy labels (e.g., fuzzy region names)Generates clean PDF summaries every week
