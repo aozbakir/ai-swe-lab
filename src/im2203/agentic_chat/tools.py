@@ -5,7 +5,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 
-from mcp_client import call_tool
+from im2203.agentic_chat.mcp_client import call_tool
 
 class Tools:
     """Collection of tools available to the chat agent."""
@@ -66,6 +66,31 @@ class Tools:
             logging.error(error_msg)
             return error_msg
 
+    @staticmethod
+    def read_file_context(filename: str) -> str:
+        """Read up to `max_lines` from the given file."""
+        max_lines = 50  # Number of lines to read from the file
+        try:
+            file_path = Path(filename).resolve()
+            if not file_path.is_file():
+                return f"File not found: {file_path}"
+            
+            with file_path.open('r', encoding='utf-8') as f:
+                lines = []
+                for _ in range(max_lines):
+                    line = f.readline()
+                    if not line:
+                        break
+                    lines.append(line.rstrip('\n'))
+                content = "\n".join(lines)
+                # Add ellipsis if more content exists
+                if f.readline():
+                    content += "\n..."
+                return content
+        except Exception as e:
+            logging.error(f"Error reading file {filename}: {e}")
+            return f"Error reading file: {e}"
+
     @classmethod
     def get_tools(cls, trace_tool):
         """Get all available tools wrapped with tracing."""
@@ -73,7 +98,8 @@ class Tools:
             trace_tool(cls.time_now),
             trace_tool(cls.date_now),
             trace_tool(cls.ls),
-            trace_tool(cls.greeting),
+            trace_tool(cls.read_file_context),
+            #trace_tool(cls.greeting),
             trace_tool(cls.wiki_search),
             trace_tool(cls.print_out),
         ]
