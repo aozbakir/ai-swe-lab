@@ -1,89 +1,35 @@
 ```mermaid
-requirementDiagram
-    requirement shared_folder {
-        id: 1
-        text: Store CSV XLSX files from vendors
-        risk: medium
-    }
+flowchart TD
+    %% ===== External Systems/Actors =====
+    Vendors["**Vendors**<br>- Submit CSV/XLSX by Sunday 23:59"] -->|Email Files| SharedFolder["**Shared Folder**<br>- Managed by IT<br>- Files saved by 8:30 AM Monday"]
+    SharedFolder -->|Files| DesignatedEmployee["**Designated Employee**<br>(Sales_Uploaders AD Group)"]
+    TaskScheduler["**Windows Task Scheduler**<br>- Triggers system at 8:00 AM Monday"] --> System
 
-    requirement ingestion_agent {
-        id: 2
-        text: Scan deduplicate classify files
-        risk: high
-        verifymethod: test
-    }
+    %% ===== Core System Components =====
+    subgraph System["**Sales Reporting System**"]
+        direction TB
+        FileWatcher["**File Watcher**<br>- Monitors ./vendor_uploads/<br>- Waits until 8:30 AM<br>- Retries for 15min on failure"]
+        Parser["**Parser**<br>- Reads CSV/XLSX<br>- Normalizes headers/columns"]
+        Validator["**Validator**<br>- Checks fields (date, product, quantity, region)<br>- Imputes missing data<br>- Logs errors"]
+        Staging["**Staging (JSON)**<br>- Temporary storage<br>- Schema: vendor, date, product, quantity, region<br>- Supports CLI reruns"]
+        Reporter["**Report Generator**<br>- Groups by product/region<br>- Outputs Markdown + PDF"]
+        Archiver["**Archiver**<br>- Compresses reports (ZIP)<br>- Keeps 4-week backups"]
+        Alerter["**Alerter**<br>- Emails Sales_Ops_Team@company.com<br>on >15% invalid data"]
+        Logger["**Logger**<br>- Records all steps<br>- Audits access"]
+    end
 
-    requirement parsing_agent {
-        id: 3
-        text: Extract tables clean data fallback to LLM
-        risk: high
-    }
+    %% ===== Data Flow =====
+    TaskScheduler --> FileWatcher
+    FileWatcher -->|"Files detected"| Parser
+    Parser -->|"Normalized Data"| Validator
+    Validator -->|"Validated Data"| Staging
+    Validator -->|"Invalid Data"| Alerter
+    Staging -->|"Cleaned Data"| Reporter
+    Reporter --> Archiver
+    Archiver -->|"Final Report"| ReportsFolder[("**./reports/**")]
+    Archiver -->|"Backups"| BackupsFolder[("**./backups/**")]
+    Alerter -->|"Alert Email"| SalesOpsTeam["**Sales Ops Team**"]
 
-    requirement region_normalizer {
-        id: 4
-        text: Normalize fuzzy region names to provinces
-        risk: medium
-    }
-
-    requirement report_generator {
-        id: 5
-        text: Aggregate data generate PDF report write logs
-        risk: medium
-    }
-
-    requirement output_layer {
-        id: 6
-        text: Save reports logs optionally email Sales
-        risk: low
-    }
-
-    requirement automation {
-        id: 7
-        text: Run scheduled task every Monday 9 AM
-        risk: low
-    }
-
-    element shared_folder_element {
-        type: storage
-    }
-
-    element ingestion_agent_element {
-        type: agent
-    }
-
-    element parsing_agent_element {
-        type: agent
-    }
-
-    element region_normalizer_element {
-        type: agent
-    }
-
-    element report_generator_element {
-        type: agent
-    }
-
-    element output_layer_element {
-        type: agent
-    }
-
-    element automation_element {
-        type: scheduler
-    }
-
-    shared_folder_element - satisfies -> shared_folder
-    ingestion_agent_element - satisfies -> ingestion_agent
-    parsing_agent_element - satisfies -> parsing_agent
-    region_normalizer_element - satisfies -> region_normalizer
-    report_generator_element - satisfies -> report_generator
-    output_layer_element - satisfies -> output_layer
-    automation_element - satisfies -> automation
-
-    shared_folder - traces  -> ingestion_agent
-    ingestion_agent - traces  -> parsing_agent
-    parsing_agent - traces  -> region_normalizer
-    region_normalizer - traces  -> report_generator
-    report_generator - traces  -> output_layer
-    automation - satisfies -> ingestion_agent
-
+    %% ===== Manual Override =====
+    AuthorizedUser["**Authorized User**<br>(Sales_Report_Admins)"] -->|"CLI:<br>generate_report --force"| Reporter
 ```
