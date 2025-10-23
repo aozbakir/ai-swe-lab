@@ -102,3 +102,25 @@ class ConversationManager:
                   verbose: bool = False, thread_id: str = "default"):
         """Create manager from YAML config"""
         return cls(llm, config_path, verbose, thread_id)
+    
+class RAGChat:
+    def __init__(self, llm, retriever=None, prompt_constructor=None, k=3):
+        """
+        Chat interface for standard and RAG-augmented chat.
+        Args:
+            llm (LLM): Language model instance.
+            retriever (Retriever): Retriever instance for RAG.
+            prompt_constructor (PromptConstructor): PromptConstructor for RAG.
+            k (int): Number of docs to retrieve for RAG.
+            use_rag (bool): If True, use RAG; else, standard chat.
+        """
+        self.llm = llm
+        self.retriever = retriever
+        self.prompt_constructor = prompt_constructor
+        self.k = k
+
+    def chat(self, query):
+            retrieved_docs, faiss_ids = self.retriever.retrieve_similar(query, k=self.k)
+            rag_prompt = self.prompt_constructor.build_prompt(query, retrieved_docs)
+            response = self.llm.chat(rag_prompt)
+            return response, faiss_ids
