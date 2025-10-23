@@ -1,0 +1,7 @@
+conversation:
+  memory:
+    max_tokens: 4  # Keep last 4 messages (2 exchanges)
+    strategy: "last"
+    start_on: "human"
+    end_on: ["human", "tool"]
+
