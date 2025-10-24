@@ -75,7 +75,21 @@ class ChatSession:
         def log_fragment(fragment, round_index=0):
                 response_chunks.append(fragment.content)
                 print(f"{BOLD_GREEN}{fragment.content}{RESET}", end="", flush=True)
-        
+
+        # Log available tools for debugging
+        tool_names = [t.__name__ for t in self.tools]
+        logging.info(f"Available tools: {tool_names}")
+
+        # Create tool schemas to help the model understand the format
+        tool_schemas = []
+        for tool in self.tools:
+            schema = {
+                "name": tool.__name__,
+                "description": tool.__doc__ or f"Tool {tool.__name__}",
+                "parameters": {}
+            }
+            tool_schemas.append(schema)
+            
         self.model.act(
             self.chat,
             tools=self.tools,
@@ -83,7 +97,8 @@ class ChatSession:
             on_prediction_fragment=log_fragment,
             config={
                 "maxTokens": 1000,
-                "temperature": 0.7
+                "temperature": 0.7,
+                "toolSchemas": tool_schemas
             },
         )
         print()
@@ -107,7 +122,7 @@ class ChatSession:
 
 def main():
     """Run the chat agent."""
-    session = ChatSession(SALES_ANALYST_PROMPT)
+    session = ChatSession(CHAT_ASSISTANT_PROMPT) #SALES_ANALYST_PROMPT
     session.run()
 
 if __name__ == "__main__":
