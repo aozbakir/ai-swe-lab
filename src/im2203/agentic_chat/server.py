@@ -44,6 +44,16 @@ def foo(a: int, b: int) -> float:
         return 0.0
     return (a - b) / (a + b)
 
+@mcp.resource("quote://{id}")
+def quote(id: str) -> str:
+    """Return a quote based on ID."""
+    quotes = {
+        "1": "Always look on the bright side of life.",
+        "2": "This parrot is no more!",
+    }
+    return quotes.get(id, "Ni! Ni! Ni!")
+
+
 if __name__ == "__main__":
     # Start MCP server with SSE transport on port 8000
     mcp.run(
