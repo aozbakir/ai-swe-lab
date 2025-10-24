@@ -30,7 +30,7 @@ A self-contained example of an LLM-powered chat agent using FastMCP and LM Studi
 
 1. Open the **LM Studio** Windows application.
 2. From the **Developer** menu select **Start server**.
-3. In the dialog, choose your model and click **OK**.
+3. In the dialog, choose your model and click **OK**. Do choose a model which enables tool use, such as qwen2.5-7b-instruct
 4. Verify you get:
    ```
    [INFO] [LM STUDIO SERVER] Success! HTTP server listening on port 1234
