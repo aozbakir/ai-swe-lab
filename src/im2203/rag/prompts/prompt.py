@@ -1,4 +1,4 @@
-from im2203.rag.components import BaseComponent
+from im2203.rag.core.components import BaseComponent
 from im2203.rag.schemas.rag_config import RAGConfig
 
 class PromptTemplate(BaseComponent):

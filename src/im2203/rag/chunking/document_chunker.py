@@ -3,7 +3,7 @@ import logging
 from langchain_core.documents import Document
 
 from im2203.rag.schemas.rag_config import RAGConfig
-from im2203.rag.components import BaseComponent
+from im2203.rag.core.components import BaseComponent
 from .chunker_registry import get_chunker
 
 class DocumentChunker(BaseComponent):

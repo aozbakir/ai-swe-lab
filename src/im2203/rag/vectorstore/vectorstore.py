@@ -6,7 +6,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 
 from im2203.rag.embeddings.document_embedder import DocumentEmbedder
-from im2203.rag.components import BaseComponent
+from im2203.rag.core.components import BaseComponent
 from im2203.rag.schemas.rag_config import RAGConfig
 
 VECTORSTORE_REGISTRY = {
