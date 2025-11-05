@@ -1,12 +1,7 @@
-from typing import List, Optional
-import yaml
-from pathlib import Path
-from langchain_core.documents import Document
+from im2203.rag.components import BaseComponent
+from im2203.rag.schemas.rag_config import RAGConfig
 
-
-class PromptTemplate:
-    """A flexible prompt template system for RAG applications"""
-    
+class PromptTemplate(BaseComponent):
     DEFAULT_TEMPLATE = """
 You are a helpful AI assistant. Use the provided context to answer questions accurately.
 
@@ -17,8 +12,6 @@ IMPORTANT INSTRUCTIONS:
 4. Be precise and concise in your answers
 5. When relevant, cite specific parts of the context to support your answer
 
-Remember to stay focused on the information present in the context.
-
 Context:
 {context}
 
@@ -26,20 +19,12 @@ Question: {query}
 
 Answer:"""
 
-    def __init__(self, template: Optional[str] = None):
-        """Initialize with optional custom template"""
-        self.template = template if template is not None else self.DEFAULT_TEMPLATE
+    def __init__(self, rag_config: RAGConfig):
+        super().__init__(rag_config, "prompts")
+        cfg_dict = self.config.model_dump() if hasattr(self.config, "model_dump") else self.config
 
-    @classmethod
-    def from_config(cls, config_path: str) -> "PromptTemplate":
-        """Load prompt template from main config file"""
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = yaml.safe_load(f)
-            prompts_config = config.get("prompts", {})
-            default_prompt = prompts_config.get("default", "qa")
-            template = prompts_config.get(default_prompt, {}).get("template")
-            return cls(template=template)
-    
+        default_prompt_name = cfg_dict.get("default", "qa")
+        self.template: str = cfg_dict.get(default_prompt_name, {}).get("template", self.DEFAULT_TEMPLATE)
+
     def format(self, query: str, context: str) -> str:
-        """Format the prompt template with query and context"""
         return self.template.format(context=context, query=query)

@@ -62,9 +62,41 @@ class DocumentVectorStore:
         )
         return self.vs
 
-    def query(self, text: str, k: int = 5) -> List[Document]:
+    def _similarity_search(self, text: str, k: int, score_threshold: float, **kwargs) -> List[Document]:
+        """Basic similarity search with score threshold."""
+        results_with_scores = self.vs.similarity_search_with_score(text, k=k)
+        return [doc for doc, score in results_with_scores if score >= score_threshold]
+
+    def _mmr_search(self, text: str, k: int, fetch_k: int = None, lambda_mult: float = 0.5, **kwargs) -> List[Document]:
+        """MMR search for diversity-aware retrieval."""
+        return self.vs.max_marginal_relevance_search(
+            text,
+            k=k,
+            fetch_k=fetch_k or 4*k,
+            lambda_mult=lambda_mult
+        )
+
+    SEARCH_STRATEGIES = {
+        "similarity": _similarity_search,
+        "mmr": _mmr_search
+    }
+
+    def query(
+        self, 
+        text: str, 
+        k: int = 5, 
+        search_type: str = "similarity",
+        **kwargs
+    ) -> List[Document]:
+        """Query the vector store using the specified search strategy."""
         if not self.vs:
             raise ValueError("Vector store not loaded. Call 'create' or 'load' first.")
-        results = self.vs.similarity_search(text, k=k)
-        logging.info(f"Query returned {len(results)} documents")
-        return results
+
+        search_fn = self.SEARCH_STRATEGIES.get(search_type)
+        if not search_fn:
+            available = ", ".join(self.SEARCH_STRATEGIES.keys())
+            raise ValueError(f"Unknown search type '{search_type}'. Available: {available}")
+
+        docs = search_fn(self, text, k, **kwargs)
+        logging.info(f"Query returned {len(docs)} documents using {search_type} search")
+        return docs

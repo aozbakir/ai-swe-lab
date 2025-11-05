@@ -1,0 +1,105 @@
+# RAG configuration
+
+paths:
+  input_file: "D:/Repos2/im2203/EU_AI_Act/OJ_L_202401689_EN_TXT.pdf"
+  output_vectorstore_dir: "D:/Repos2/im2203/src/im2203/aiact_rag/vector.store"
+
+extraction:
+  default: "pdfplumber"
+  pypdf:
+    mode: "single"
+  pdfplumber: {}
+    
+chunking:
+  default: "recursive"
+  chunkers:
+    character:
+      chunk_size: 300
+      chunk_overlap: 30
+      separator: ""
+    recursive:
+      chunk_size: 800
+      chunk_overlap: 150
+      separator: ["\n\n", "\n"]
+
+llm:
+  default: "lmstudio"
+  openai:
+    name: "openai"
+    model_name: "gpt-3.5-turbo"
+    base_url: null
+    temperature: 0.0
+  lmstudio:
+    name: "lmstudio"
+    model_name: "qwen2.5-7b-instruct-1m"
+    base_url: "http://127.0.0.1:1234/v1"
+    temperature: 0.0
+    max_tokens: 512  # Limit response length
+    top_p: 0.1      # More focused sampling
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    request_timeout: 120  # Timeout in seconds
+  huggingface:
+    name: "huggingface"
+    model_name: "meta-llama/Llama-2-7b-chat-hf"
+    temperature: 0.3
+    quantize_4bit: false
+    max_new_tokens: 500
+    top_k: 50
+    top_p: 0.95
+
+embeddings:
+  default: sentence_transformers
+  sentence_transformers:
+    model_name: intfloat/multilingual-e5-large
+    device: cpu
+    normalize_embeddings: true
+    cache_dir: null
+  openai:
+    model_name: text-embedding-3-small
+    base_url: null
+
+
+
+vectorstore:
+  default: "faiss"
+  faiss:
+    index_path: "D:/Repos2/im2203/src/im2203/aiact_rag/vector.store/faiss_index"
+
+retrieval:
+  default: "vectorstore"
+  vectorstore:
+    type: "FAISS"
+    similarity_metric: "cosine"
+    top_k: 8
+    search_kwargs:
+      score_threshold: 0.4  # Only get highly relevant chunks
+      filter: null
+
+generation:
+  default: "openai"
+  openai:
+    model_ref: "llm.openai"
+    prompt_template: "default"
+    max_tokens: 500
+    temperature: 0.2
+
+prompts:
+  default: "qa"
+  qa:
+    template: |
+      You are a knowledgeable AI assistant specialized in legal texts. Use the provided context from the EU AI Act to answer questions accurately.
+
+      IMPORTANT INSTRUCTIONS:
+      1. Base your answers solely on the provided context.
+      2. If the necessary information is not in the context, say "I don't find this information in the provided context."
+      3. Do not make assumptions or use external knowledge.
+      4. Be precise and concise in your answers.
+      5. When relevant, cite the specific Article number or section from the context to support your answer.
+
+      Context:
+      {context}
+
+      Question: {query}
+
+      Answer (cite Article number if available):

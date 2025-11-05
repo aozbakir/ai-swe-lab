@@ -80,14 +80,12 @@ class OpenAIEmbeddingConfig(BaseModel):
     base_url: Optional[str] = None
 
 class EmbeddingsConfig(BaseModel):
-    default: str = "sentence_transformers"
-    sentence_transformers: SentenceTransformersConfig
+    default: str
+    e5_large: Optional[SentenceTransformersConfig] = None
     openai: Optional[OpenAIEmbeddingConfig] = None
 
 
-# --------------------------------------------------
-# VECTORSTORE & RETRIEVAL
-# --------------------------------------------------
+# VECTORSTORE
 class FAISSConfig(BaseModel):
     index_path: str
 
@@ -95,13 +93,16 @@ class VectorstoreConfig(BaseModel):
     default: str = "faiss"
     faiss: FAISSConfig
 
-class RetrievalConfig(BaseModel):
-    default: str = "vectorstore"
+# RETRIEVAL
+class RetrievalVectorstoreConfig(BaseModel):
     type: str = "FAISS"
     similarity_metric: str = "cosine"
     top_k: int = 5
     search_kwargs: Optional[Dict[str, Optional[Union[str, float]]]] = None
 
+class RetrievalConfig(BaseModel):
+    default: str = "vectorstore"
+    vectorstore: RetrievalVectorstoreConfig
 
 # --------------------------------------------------
 # GENERATION
