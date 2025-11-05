@@ -42,6 +42,11 @@ class LMStudioConfig(BaseModel):
     model_name: str
     base_url: str
     temperature: float = 0.0
+    max_tokens: int = 512
+    top_p: float = 0.1
+    frequency_penalty: float = 0.0
+    presence_penalty: float = 0.0
+    request_timeout: int = 120
 
 class HuggingFaceConfig(BaseModel):
     name: str = "huggingface"

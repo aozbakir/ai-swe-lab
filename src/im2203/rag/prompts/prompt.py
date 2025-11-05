@@ -1,25 +1,23 @@
-from typing import List
+from typing import List, Optional
+import yaml
+from pathlib import Path
+from langchain_core.documents import Document
 
-from langchain.schema import Document
 
-
-class PromptConstructor:
-    """Constructs prompts by merging user query with retrieved context"""
-    def __init__(self, template: str = None):
-        self.template = template or """
-You are an AI assistant implementing pure RAG (Retrieval-Augmented Generation) for questions about the EU AI Act.
+class PromptTemplate:
+    """A flexible prompt template system for RAG applications"""
+    
+    DEFAULT_TEMPLATE = """
+You are a helpful AI assistant. Use the provided context to answer questions accurately.
 
 IMPORTANT INSTRUCTIONS:
-1. ONLY answer based on the document context provided with each question
-2. If the information needed to answer the question is NOT found in the provided context, respond with \"I don't know. The necessary information is not found in the provided context.\"
-3. DO NOT use prior knowledge about the EU AI Act outside of the provided context
-4. DO NOT make up or infer information that isn't explicitly stated in the context
-5. ALWAYS cite your sources by referring to document numbers [1], [2], or [3] for each piece of information
-6. When possible, refer to specific Articles, Chapters, or Sections as mentioned in the reference information
-7. Format citations like: \"According to Document [1], Article 28 states that...\"
-8. Focus only on the current question and context, not on previous exchanges
+1. Base your answers solely on the provided context
+2. If the necessary information is not in the context, say "I don't find this information in the provided context"
+3. Do not make assumptions or use external knowledge
+4. Be precise and concise in your answers
+5. When relevant, cite specific parts of the context to support your answer
 
-Your answers must be fully grounded in the retrieved document context with explicit citations.
+Remember to stay focused on the information present in the context.
 
 Context:
 {context}
@@ -27,8 +25,21 @@ Context:
 Question: {query}
 
 Answer:"""
+
+    def __init__(self, template: Optional[str] = None):
+        """Initialize with optional custom template"""
+        self.template = template if template is not None else self.DEFAULT_TEMPLATE
+
+    @classmethod
+    def from_config(cls, config_path: str) -> "PromptTemplate":
+        """Load prompt template from main config file"""
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+            prompts_config = config.get("prompts", {})
+            default_prompt = prompts_config.get("default", "qa")
+            template = prompts_config.get(default_prompt, {}).get("template")
+            return cls(template=template)
     
-    def build_prompt(self, query: str, retrieved_docs: List[Document]) -> str:
-        """Merge query and retrieved documents into a prompt"""
-        context = "\n\n".join([doc.page_content for doc in retrieved_docs])
+    def format(self, query: str, context: str) -> str:
+        """Format the prompt template with query and context"""
         return self.template.format(context=context, query=query)

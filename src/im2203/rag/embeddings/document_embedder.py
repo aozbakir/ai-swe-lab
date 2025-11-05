@@ -1,8 +1,10 @@
+import logging
 from pathlib import Path
 from typing import List
 import yaml
-import logging
-from langchain.schema import Document
+
+
+from langchain_core.documents import Document
 
 from .embedder_registry import get_embedder
 

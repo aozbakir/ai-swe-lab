@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List
-from langchain.docstore.document import Document
 import logging
 
+from langchain_core.documents import Document
 
 class BaseChunker(ABC):
     """Abstract base class for document chunkers."""

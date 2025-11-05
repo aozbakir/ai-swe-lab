@@ -10,21 +10,21 @@ extraction:
     mode: "single"
   pdfplumber: {}
     
-
 chunking:
   default: "recursive"
   chunkers:
     character:
-      chunk_size: 500
-      chunk_overlap: 50
+      chunk_size: 300
+      chunk_overlap: 30
       separator: "" # can change to "\n\n" if you want paragraph splits
     recursive:
-      chunk_size: 500
-      chunk_overlap: 50
+      chunk_size: 300
+      chunk_overlap: 30
       separator: ["\n\n", "\n", " ", ""]
 
+# LLM Configuration
 llm:
-  default: "openai"
+  default: "lmstudio"
   openai:
     name: "openai"
     model_name: "gpt-3.5-turbo"
@@ -35,6 +35,11 @@ llm:
     model_name: "qwen2.5-7b-instruct-1m"
     base_url: "http://127.0.0.1:1234/v1"
     temperature: 0.0
+    max_tokens: 512  # Limit response length
+    top_p: 0.1      # More focused sampling
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    request_timeout: 120  # Timeout in seconds
   huggingface:
     name: "huggingface"
     model_name: "meta-llama/Llama-2-7b-chat-hf"
@@ -68,7 +73,7 @@ retrieval:
     similarity_metric: "cosine"
     top_k: 5
     search_kwargs:
-      score_threshold: null
+      score_threshold: 0.7  # Only get highly relevant chunks
       filter: null
 
 generation:
@@ -83,9 +88,18 @@ prompts:
   default: "qa"
   qa:
     template: |
-      You are a helpful assistant. 
-      Use the following context to answer the question.
+      You are a helpful AI assistant. Use the provided context to answer questions accurately.
+
+      IMPORTANT INSTRUCTIONS:
+      1. Base your answers solely on the provided context
+      2. If the necessary information is not in the context, say "I don't find this information in the provided context"
+      3. Do not make assumptions or use external knowledge
+      4. Be precise and concise in your answers
+      5. When relevant, cite specific parts of the context to support your answer
+
       Context:
       {context}
-      Question:
-      {question}
+
+      Question: {query}
+
+      Answer:

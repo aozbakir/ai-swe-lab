@@ -59,8 +59,8 @@ class LLMFactory:
             Configured LLM instance
         """
         config = self._load_config(config_path)
-        default_model = config.get('default_model', 'lmstudio')
-        model_config = config['models'][default_model]
+        default_model = config['llm'].get('default', 'lmstudio')
+        model_config = config['llm'][default_model]
         
         builder_name = model_config.get('name')
         builder = self.get_builder(builder_name)
@@ -72,8 +72,8 @@ class LLMFactory:
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
         
-        if 'models' not in config:
-            raise ValueError("Config must contain 'models' section")
+        if 'llm' not in config:
+            raise ValueError("Config must contain 'llm' section")
         
         return config
     

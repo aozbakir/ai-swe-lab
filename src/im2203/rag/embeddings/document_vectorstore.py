@@ -1,8 +1,9 @@
 import logging
 from pathlib import Path
 from typing import List
-from langchain.vectorstores import FAISS
-from langchain.schema import Document
+
+from langchain_community.vectorstores import FAISS
+from langchain_core.documents import Document
 
 from im2203.rag.embeddings.document_embedder import DocumentEmbedder
 

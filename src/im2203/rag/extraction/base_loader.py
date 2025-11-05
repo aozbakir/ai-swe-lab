@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List
-try:
-    from langchain.schema import Document
-except Exception:
-    from langchain.docstore.document import Document
+
+from langchain_core.documents import Document
+
 
 class BaseLoader(ABC):
 

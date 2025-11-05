@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 import yaml
 
-from langchain.schema import Document
+from langchain_core.documents import Document
 
 from im2203.rag.schemas.rag_config import RAGConfig
 from .chunker_registry import get_chunker

@@ -1,7 +1,7 @@
 from typing import List
 
-from langchain.schema import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter as LCRecursiveSplitter
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter as LCRecursiveSplitter
 
 from .base_chunker import BaseChunker
 

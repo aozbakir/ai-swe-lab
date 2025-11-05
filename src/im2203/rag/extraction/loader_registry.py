@@ -1,7 +1,8 @@
 import os
+import logging
+
 from .pypdf_loader import PyPdfLoader
 from .pdfplumber_loader import PdfPlumberLoader
-import logging
 
 LOADER_REGISTRY = {
     "pypdf": PyPdfLoader,

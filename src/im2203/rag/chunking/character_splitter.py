@@ -1,6 +1,8 @@
-from langchain.text_splitter import CharacterTextSplitter as LCCharacterTextSplitter
 from typing import List
-from langchain.schema import Document
+
+from langchain_core.documents import Document
+from langchain_text_splitters import CharacterTextSplitter as LCCharacterTextSplitter
+
 from .base_chunker import BaseChunker
 
 class CharacterTextSplitter(BaseChunker):

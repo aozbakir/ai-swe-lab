@@ -4,7 +4,7 @@ from typing import List, Union
 import logging
 
 from langchain_community.document_loaders import PDFPlumberLoader
-from langchain.docstore.document import Document
+from langchain_core.documents import Document
 
 from .base_loader import BaseLoader
 
