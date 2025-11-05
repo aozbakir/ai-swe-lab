@@ -1,0 +1,91 @@
+# RAG configuration
+
+paths:
+  input_file: "D:/Repos2/ELSA/input/pdf/metagpt.pdf"
+  output_vectorstore_dir: "D:/Repos2/im2203/src/im2203/aiact_rag/vector_store_rag_lab"
+
+extraction:
+  default: "pypdf"
+  pypdf:
+    mode: "single"
+  pdfplumber: {}
+    
+
+chunking:
+  default: "recursive"
+  chunkers:
+    character:
+      chunk_size: 500
+      chunk_overlap: 50
+      separator: "" # can change to "\n\n" if you want paragraph splits
+    recursive:
+      chunk_size: 500
+      chunk_overlap: 50
+      separator: ["\n\n", "\n", " ", ""]
+
+llm:
+  default: "openai"
+  openai:
+    name: "openai"
+    model_name: "gpt-3.5-turbo"
+    base_url: null
+    temperature: 0.0
+  lmstudio:
+    name: "lmstudio"
+    model_name: "qwen2.5-7b-instruct-1m"
+    base_url: "http://127.0.0.1:1234/v1"
+    temperature: 0.0
+  huggingface:
+    name: "huggingface"
+    model_name: "meta-llama/Llama-2-7b-chat-hf"
+    temperature: 0.3
+    quantize_4bit: false
+    max_new_tokens: 500
+    top_k: 50
+    top_p: 0.95
+
+embeddings:
+  default: sentence_transformers
+  sentence_transformers:
+    model_name: all-MiniLM-L6-v2
+    device: cpu
+    normalize_embeddings: true
+    cache_dir: null
+  openai:
+    model_name: text-embedding-3-small
+    base_url: null
+
+
+vectorstore:
+  default: "faiss"
+  faiss:
+    index_path: "D:/Repos2/im2203/src/im2203/aiact_rag/vector_store_rag_lab/faiss_index"
+
+retrieval:
+  default: "vectorstore"
+  vectorstore:
+    type: "FAISS"
+    similarity_metric: "cosine"
+    top_k: 5
+    search_kwargs:
+      score_threshold: null
+      filter: null
+
+generation:
+  default: "openai"
+  openai:
+    model_ref: "llm.openai"
+    prompt_template: "default"
+    max_tokens: 500
+    temperature: 0.2
+
+prompts:
+  default: "qa"
+  qa:
+    template: |
+      You are a helpful assistant. 
+      Use the following context to answer the question.
+      Context:
+      {context}
+      Question:
+      {question}

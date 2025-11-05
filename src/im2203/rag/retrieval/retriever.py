@@ -12,6 +12,10 @@ class Retriever:
             docs: List[Document]
             ids: List (from doc.metadata['id'])
         """
-        retrieved_docs = self.vectorstore.similarity_search(query, k=k)
-        doc_ids = [doc.id for doc in retrieved_docs]
+        # Access the underlying FAISS vectorstore
+        if not hasattr(self.vectorstore, 'vectorstore'):
+            raise ValueError("Vectorstore not properly initialized or loaded")
+        
+        retrieved_docs = self.vectorstore.vectorstore.similarity_search(query, k=k)
+        doc_ids = [doc.metadata.get('id', '') for doc in retrieved_docs]  # Safely get ID from metadata
         return retrieved_docs, doc_ids
