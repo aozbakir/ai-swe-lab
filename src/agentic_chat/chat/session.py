@@ -1,28 +1,20 @@
-from datetime import datetime
-import textwrap
 import lmstudio as lms
 
 from agentic_chat.prompts.prompts import CHAT_ASSISTANT_PROMPT
 from agentic_chat.tools.tools import Tools
 from agentic_chat.utils.ansi import BOLD_BLUE, BOLD_GREEN, RESET
-from agentic_chat.utils.logging import setup_logging
 from agentic_chat.utils.helpers import trace_tool
+from agentic_chat.utils.chat_logger import ChatLogger
 
-setup_logging()
 
 class ChatSession:
-    def __init__(self, use_prompt=CHAT_ASSISTANT_PROMPT):
+    def __init__(self, use_prompt=CHAT_ASSISTANT_PROMPT, logger=None):
         self.model = lms.llm()
         self.chat = lms.Chat(use_prompt)
         self.tools = Tools.get_tools(trace_tool)
         self.response_chunks = []
+        self.logger = logger or ChatLogger()
 
-    def log_message(self, role: str, content: str) -> None:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        wrapped_content = textwrap.fill(content, width=80, subsequent_indent="    ")
-        log_entry = f"[{timestamp}] {role.upper()}:\n{wrapped_content}"
-        with open("chat_history.log", "a", encoding="utf-8") as f:
-            f.write(log_entry + "\n")
 
     def _build_tool_schemas(self):
         return [
@@ -42,7 +34,7 @@ class ChatSession:
         self._print_bot_response(fragment.content)
 
     def process_message(self, message: str) -> None:
-        self.log_message("user", message)
+        self.logger.log_message("user", message)
         self.chat.add_user_message(message)
         print(f"{BOLD_GREEN}Bot:{RESET} ", end="", flush=True)
         self.response_chunks = []
@@ -60,7 +52,7 @@ class ChatSession:
             },
         )
         print()
-        self.log_message("assistant", "".join(self.response_chunks))
+        self.logger.log_message("assistant", "".join(self.response_chunks))
 
     def run(self) -> None:
         while True:
