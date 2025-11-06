@@ -1,0 +1,34 @@
+[
+    {
+        "question": "Why do we need rules for general-purpose AI models?",
+        "answer": "Rules are needed to ensure the safe and responsible development and deployment of general-purpose AI models, which can have widespread societal impact. The EU AI Act establishes these rules to manage potential risks while fostering innovation and protecting fundamental rights."
+    },
+    {
+        "question": "What are general-purpose AI models?",
+        "answer": "General-purpose AI models (GPAI) are AI systems capable of being used for a wide range of distinct tasks across multiple applications. They are typically trained on large datasets and exhibit significant generality, allowing adaptation through fine-tuning or integration into other AI systems."
+    },
+    {
+        "question": "What are general-purpose AI models with systemic risk?",
+        "answer": "GPAI models with systemic risk are those whose capabilities and scale may pose actual or reasonably foreseeable negative effects on society, such as impacts on public safety, democratic processes, or economic stability. These models are subject to additional obligations under the AI Act to mitigate potential systemic risks."
+    },
+    {
+        "question": "What is a provider of a general-purpose AI model?",
+        "answer": "A provider of a GPAI model is any entity that develops and makes such a model available to others, whether commercially or through open-source distribution. Providers are responsible for ensuring compliance with relevant AI Act obligations."
+    },
+    {
+        "question": "What are the obligations for providers of general-purpose AI models?",
+        "answer": "Providers of GPAI models must fulfill obligations including transparency, documentation, copyright compliance, and risk management. For systemic-risk GPAI models, additional measures such as risk assessment, mitigation, and post-market monitoring are required. Some obligations apply already during development and deployment stages, especially when models are made available to others."
+    },
+    {
+        "question": "What is the General-Purpose AI Code of Practice?",
+        "answer": "The General-Purpose AI Code of Practice is a voluntary set of guidelines designed to help providers comply with the AI Act’s requirements. Following the Code provides practical guidance on implementing obligations and demonstrates a pathway to regulatory compliance."
+    },
+    {
+        "question": "Do the obligations for providers of general-purpose AI models apply in the development phase?",
+        "answer": "Yes, certain obligations, such as documentation and transparency, begin during development to ensure safety and compliance are built in. However, the full legal obligations apply when the model is placed on the market or made available to others."
+    },
+    {
+        "question": "What happens if someone fine-tunes or modifies a model?",
+        "answer": "If a model is fine-tuned or significantly modified and then made available to others, the modifier may be considered a provider and must comply with the applicable obligations under the AI Act. Internal modifications for private use generally do not trigger provider obligations."
+    }
+]
