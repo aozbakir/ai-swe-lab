@@ -1,6 +1,4 @@
-import asyncio
 from fastmcp import Client
-from fastmcp.client.transports import SSETransport
 
 MCP_URL = "http://127.0.0.1:8000/mcp/"
 
