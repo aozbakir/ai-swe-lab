@@ -5,7 +5,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 
-from agentic_chat.mcp_client import call_tool
+from agentic_chat.scripts.mcp_client import call_tool
 
 class Tools:
     """Collection of tools available to the chat agent."""
