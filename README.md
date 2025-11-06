@@ -28,13 +28,14 @@ A minimal agentic chat system showing how to integrate FastMCP tool servers with
 ---
 
 🔎 rag/ — Retrieval-Augmented Generation Pipeline  
-A full RAG (Retrieval-Augmented Generation) system that:
-- Ingests and preprocesses legal documents (EU AI Act)
-- Chunks them into coherent segments
-- Creates and indexes vector embeddings
-- Performs semantic search to retrieve relevant context
-- Feeds that into an LLM to generate high-quality answers
-- 💡 Use this as a base for document-driven assistants or question-answering apps
+A modular RAG (Retrieval-Augmented Generation) system with CLI tools that:
+- Ingests and preprocesses documents via configurable pipeline
+- Chunks content using various strategies (character, recursive)
+- Creates and manages FAISS vector store with embeddings
+- Supports multiple search strategies (similarity, MMR)
+- Provides interactive QA interface with timeout handling
+- Configurable with LM Studio, OpenAI, or Hugging Face models
+- 💡 Use this as a production-ready base for document QA systems
 
 ---
 
@@ -67,6 +68,12 @@ Install the core dependencies:
 ```bash
 pip install fastmcp wikipedia-api lmstudio
 ```
+
+For the RAG system, you'll also need:
+```bash
+pip install langchain langchain-openai faiss-cpu sentence-transformers pypdf pdfplumber
+```
+
 Some folders may have additional requirements; see their individual README files.
 
 ---
