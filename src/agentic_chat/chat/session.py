@@ -15,6 +15,7 @@ class ChatSession:
         self.model = lms.llm()
         self.chat = lms.Chat(use_prompt)
         self.tools = Tools.get_tools(trace_tool)
+        self.response_chunks = []
 
     def log_message(self, role: str, content: str) -> None:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -23,36 +24,35 @@ class ChatSession:
         with open("chat_history.log", "a", encoding="utf-8") as f:
             f.write(log_entry + "\n")
 
-    def print_fragment(self, fragment, round_index=0):
-        print(fragment.content, end="", flush=True)
+    def _build_tool_schemas(self):
+        return [
+            {
+                "name": tool.__name__,
+                "description": tool.__doc__ or f"Tool {tool.__name__}",
+                "parameters": {}
+            }
+            for tool in self.tools
+        ]
+
+    def _print_bot_response(self, content):
+        print(f"{BOLD_GREEN}{content}{RESET}", end="", flush=True)
+
+    def _log_fragment(self, fragment, round_index=0):
+        self.response_chunks.append(fragment.content)
+        self._print_bot_response(fragment.content)
 
     def process_message(self, message: str) -> None:
         self.log_message("user", message)
         self.chat.add_user_message(message)
         print(f"{BOLD_GREEN}Bot:{RESET} ", end="", flush=True)
-        response_chunks = []
+        self.response_chunks = []
 
-        def log_fragment(fragment, round_index=0):
-            response_chunks.append(fragment.content)
-            print(f"{BOLD_GREEN}{fragment.content}{RESET}", end="", flush=True)
-
-        tool_names = [t.__name__ for t in self.tools]
-        # Logging is now handled by setup_logging and get_logger if needed
-
-        tool_schemas = []
-        for tool in self.tools:
-            schema = {
-                "name": tool.__name__,
-                "description": tool.__doc__ or f"Tool {tool.__name__}",
-                "parameters": {}
-            }
-            tool_schemas.append(schema)
-
+        tool_schemas = self._build_tool_schemas()
         self.model.act(
             self.chat,
             tools=self.tools,
             on_message=self.chat.append,
-            on_prediction_fragment=log_fragment,
+            on_prediction_fragment=self._log_fragment,
             config={
                 "maxTokens": 1000,
                 "temperature": 0.7,
@@ -60,7 +60,7 @@ class ChatSession:
             },
         )
         print()
-        self.log_message("assistant", "".join(response_chunks))
+        self.log_message("assistant", "".join(self.response_chunks))
 
     def run(self) -> None:
         while True:
