@@ -2,7 +2,7 @@
 
 paths:
   input_file: "D:/Repos2/ELSA/input/pdf/metagpt.pdf"
-  output_vectorstore_dir: "D:/Repos2/im2203/src/im2203/aiact_rag/vector_store_rag_lab"
+  output_vectorstore_dir: "D:/Repos2/im2203/src/im2203/rag/vector.store"
 
 extraction:
   default: "pypdf"
@@ -22,7 +22,6 @@ chunking:
       chunk_overlap: 30
       separator: ["\n\n", "\n", " ", ""]
 
-# LLM Configuration
 llm:
   default: "lmstudio"
   openai:
@@ -60,11 +59,10 @@ embeddings:
     model_name: text-embedding-3-small
     base_url: null
 
-
 vectorstore:
   default: "faiss"
   faiss:
-    index_path: "D:/Repos2/im2203/src/im2203/aiact_rag/vector_store_rag_lab/faiss_index"
+    index_path: "D:/Repos2/im2203/src/im2203/rag/vector.store/faiss_index"
 
 retrieval:
   default: "vectorstore"

@@ -59,8 +59,6 @@ embeddings:
     model_name: text-embedding-3-small
     base_url: null
 
-
-
 vectorstore:
   default: "faiss"
   faiss:
