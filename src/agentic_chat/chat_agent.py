@@ -5,8 +5,8 @@ import textwrap
 
 import lmstudio as lms
 
-from im2203.agentic_chat.prompts import CHAT_ASSISTANT_PROMPT, SALES_ANALYST_PROMPT
-from im2203.agentic_chat.tools import Tools
+from agentic_chat.prompts import CHAT_ASSISTANT_PROMPT, SALES_ANALYST_PROMPT
+from agentic_chat.tools import Tools
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 SALES_ANALYST_PROMPT
