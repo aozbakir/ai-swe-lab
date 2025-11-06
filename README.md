@@ -2,7 +2,7 @@
 
 This repository contains all the extended examples and demo code used in IM2203 — Software Engineering with AI Components
 
-hese folders go beyond what’s in the lecture notes: they’re designed to help you understand, experiment with, and build your own AI-driven software systems.
+These folders go beyond what’s in the lecture notes: they’re designed to help you understand, experiment with, and build your own AI-driven software systems.
 You’ll see core architectural patterns, hands-on implementations, and step-by-step tools that you can adapt for your own projects and assignments.
 
 📁 What's Inside?
