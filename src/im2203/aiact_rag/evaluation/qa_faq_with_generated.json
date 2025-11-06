@@ -1,0 +1,52 @@
+{
+  "results": [
+    {
+      "question": "Why do we need rules for general-purpose AI models?",
+      "reference_answer": "Rules are needed to ensure the safe and responsible development and deployment of general-purpose AI models, which can have widespread societal impact. The EU AI Act establishes these rules to manage potential risks while fostering innovation and protecting fundamental rights.",
+      "generated_answer": "We need rules for general-purpose AI models to ensure they are developed, used, and integrated into systems in a safe and responsible manner. These rules aim to address potential systemic risks associated with such models, which can perform a wide range of tasks across various applications. The regulations help providers understand the capabilities and limitations of these models, ensuring compliance with legal obligations. This is particularly important as general-purpose AI models are not just standalone components but integral parts of larger AI systems.\n\nReference: Article 51 (63) of the provided context defines 'general-purpose AI model' and emphasizes the need for rules to manage systemic risks and ensure proper integration into AI systems.",
+      "elapsed_time_sec": 50.47855234146118
+    },
+    {
+      "question": "What are general-purpose AI models?",
+      "reference_answer": "General-purpose AI models (GPAI) are AI systems capable of being used for a wide range of distinct tasks across multiple applications. They are typically trained on large datasets and exhibit significant generality, allowing adaptation through fine-tuning or integration into other AI systems.",
+      "generated_answer": "General-purpose AI models are AI models that display significant generality and the capability to competently perform a wide range of distinct tasks. They are typically trained on large amounts of data using methods such as self-supervision, unsupervised learning, or reinforcement learning. These models can be placed on the market in various ways, including through libraries, APIs, direct download, or physical copy. Importantly, they do not constitute AI systems on their own but require additional components like a user interface to function as complete AI systems. General-purpose AI models may also be further modified or fine-tuned into new models. The Regulation provides specific rules for these models and systems, including advice on classification and benchmarks.",
+      "elapsed_time_sec": 46.94553899765015
+    },
+    {
+      "question": "What are general-purpose AI models with systemic risk?",
+      "reference_answer": "GPAI models with systemic risk are those whose capabilities and scale may pose actual or reasonably foreseeable negative effects on society, such as impacts on public safety, democratic processes, or economic stability. These models are subject to additional obligations under the AI Act to mitigate potential systemic risks.",
+      "generated_answer": "General-purpose AI models with systemic risk are those AI models that have high-impact capabilities, which could potentially lead to significant negative effects. These effects can include major accidents, disruptions of critical sectors, serious consequences to public health and safety, impacts on democratic processes, public and economic security, or the dissemination of illegal, false, or discriminatory content. Such risks arise from particularly high capabilities that these models possess, and they require providers to perform necessary evaluations, including adversarial testing, and to continuously assess and mitigate these risks throughout the model's lifecycle.\n\nReference: (110)",
+      "elapsed_time_sec": 43.49573802947998
+    },
+    {
+      "question": "What is a provider of a general-purpose AI model?",
+      "reference_answer": "A provider of a GPAI model is any entity that develops and makes such a model available to others, whether commercially or through open-source distribution. Providers are responsible for ensuring compliance with relevant AI Act obligations.",
+      "generated_answer": "A provider of a general-purpose AI model is a party responsible for supplying models that are designed to perform a wide range of distinct tasks competently. These models are typically trained using large datasets and various methods such as self-supervised, unsupervised, or reinforcement learning. The role of these providers extends beyond just offering the models; they also have a responsibility to ensure that downstream providers who use their models for creating other systems have a good understanding of the model's capabilities and limitations. This is important both for integrating the AI model into products and for complying with relevant regulations.\n\nReference: \"Providers of general-purpose AI models have a particular role and responsibility along the AI value chain, as the models they provide may form the basis for a range of downstream systems...\" (EN OJ L, 12.7.2024, p. 101)",
+      "elapsed_time_sec": 56.134430170059204
+    },
+    {
+      "question": "What are the obligations for providers of general-purpose AI models?",
+      "reference_answer": "Providers of GPAI models must fulfill obligations including transparency, documentation, copyright compliance, and risk management. For systemic-risk GPAI models, additional measures such as risk assessment, mitigation, and post-market monitoring are required. Some obligations apply already during development and deployment stages, especially when models are made available to others.",
+      "generated_answer": "The obligations for providers of general-purpose AI models include cooperating as necessary with the Commission and national competent authorities in exercising their competences and powers pursuant to this Regulation. Providers may also rely on codes of practice until a harmonised standard is established, provided that these practices demonstrate compliance with the obligations set out.\n\nSpecifically:\n- Providers must ensure that information and documentation about the general-purpose AI models enable downstream providers to understand the capabilities and limitations of the model.\n- This cooperation and reliance on codes of practice are necessary for ensuring compliance with this Regulation. \n\nThese points are detailed in Articles 3 and 4 of the provided context, respectively.",
+      "elapsed_time_sec": 47.10611391067505
+    },
+    {
+      "question": "What is the General-Purpose AI Code of Practice?",
+      "reference_answer": "The General-Purpose AI Code of Practice is a voluntary set of guidelines designed to help providers comply with the AI Act’s requirements. Following the Code provides practical guidance on implementing obligations and demonstrates a pathway to regulatory compliance.",
+      "generated_answer": "The General-Purpose AI Code of Practice refers to a set of obligations for providers of general-purpose AI models that are intended to ensure these models adhere to certain ethical and operational standards. According to Article 53, adherence may be limited unless the provider explicitly expresses interest in joining the full code.\n\nSpecifically:\n- The AI Office may invite all providers of general-purpose AI models to adhere to codes of practice.\n- For those not presenting systemic risks, adherence is initially limited to obligations provided for in Article 53.\n- Providers can declare their interest to join a more comprehensive set of codes if they so choose.\n- Codes of practice should cover obligations related to the generation of content (text, audio, images, or video) that can accommodate various tasks.\n- The AI Office is responsible for encouraging and facilitating the review and adaptation of these codes, ensuring they reflect the state of the art and consider diverse perspectives. Collaboration with national competent authorities, civil society organizations, experts, and relevant stakeholders is encouraged.\n\nFor more detailed information on how to integrate or form part of an AI system as a general-purpose AI model, refer to points (100) and (116) in the provided context.",
+      "elapsed_time_sec": 68.39554047584534
+    },
+    {
+      "question": "Do the obligations for providers of general-purpose AI models apply in the development phase?",
+      "reference_answer": "Yes, certain obligations, such as documentation and transparency, begin during development to ensure safety and compliance are built in. However, the full legal obligations apply when the model is placed on the market or made available to others.",
+      "generated_answer": "I don't find this information in the provided context. The context discusses the obligations for providers of general-purpose AI models once the models are placed on the market, but it does not mention anything about obligations during the development phase.",
+      "elapsed_time_sec": 25.088691473007202
+    },
+    {
+      "question": "What happens if someone fine-tunes or modifies a model?",
+      "reference_answer": "If a model is fine-tuned or significantly modified and then made available to others, the modifier may be considered a provider and must comply with the applicable obligations under the AI Act. Internal modifications for private use generally do not trigger provider obligations.",
+      "generated_answer": "If someone fine-tunes or modifies a model, the obligations for providers of general-purpose AI models should be limited to that modification or fine-tuning. Specifically, this can be achieved by complementing the existing technical documentation with information on the modifications, including new training data sources. This approach is meant to comply with the value chain obligations provided in the relevant Regulation.\n\nReference: \"a modification or fine-tuning of a model, the obligations for providers of general-purpose AI models should be limited to that modification or fine-tuning, for example by complementing the already existing technical documentation with information on the modifications, including new training data sources, as a means to comply with the value chain obligations provided in this Regulation.\"",
+      "elapsed_time_sec": 48.64510107040405
+    }
+  ]
+}
