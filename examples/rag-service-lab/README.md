@@ -1,6 +1,10 @@
 RAG Service Lab
 ================
 
+Screenshot
+----------
+![](./Capture.JPG)
+
 Use case
 --------
 RAG Service Lab is a small example project that demonstrates a Retrieval-Augmented Generation (RAG) workflow.  It shows how to:
