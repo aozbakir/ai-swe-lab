@@ -6,7 +6,6 @@ from agentic_chat.utils.ansi import BOLD_BLUE, BOLD_GREEN, RESET
 from agentic_chat.utils.helpers import trace_tool
 from agentic_chat.utils.chat_logger import ChatLogger
 
-
 class ChatSession:
     def __init__(self, use_prompt=CHAT_ASSISTANT_PROMPT, logger=None):
         self.model = lms.llm()
@@ -14,7 +13,6 @@ class ChatSession:
         self.tools = Tools.get_tools(trace_tool)
         self.response_chunks = []
         self.logger = logger or ChatLogger()
-
 
     def _build_tool_schemas(self):
         return [
@@ -39,7 +37,7 @@ class ChatSession:
         print(f"{BOLD_GREEN}Bot:{RESET} ", end="", flush=True)
         self.response_chunks = []
 
-        tool_schemas = self._build_tool_schemas()
+        tool_schemas = self._build_tool_schemas() # This should be a singleton.
         self.model.act(
             self.chat,
             tools=self.tools,
