@@ -14,10 +14,13 @@ class QARetriever:
         self.llm = llm
         self.prompt_template = prompt_template
 
-    def run(self, query: str, verbose: bool = False) -> Tuple[str, float]:
+    def run(self, query: str, verbose: bool = False) -> Tuple[str, list]:
         start_time = time.time()
 
         docs = self.retriever.retrieve(query)
+        for i, d in enumerate(docs):
+            print(f"Doc {i+1} type: {type(d)}, value: {repr(d)}")
+
         context = "\n\n---\n\n".join([d.page_content for d in docs])
         prompt = self.prompt_template.format(query=query, context=context)
 
@@ -28,4 +31,4 @@ class QARetriever:
         if verbose:
             print(f"[QA] Retrieved {len(docs)} docs, generated in {elapsed:.2f}s")
 
-        return response_text, elapsed
+        return response_text, docs
