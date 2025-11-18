@@ -2,7 +2,7 @@
 
 paths:
   input_file: "D:/Repos2/im2203/EU_AI_Act/OJ_L_202401689_EN_TXT.pdf"
-  output_vectorstore_dir: "D:/Repos2/im2203/src/im2203/aiact_rag/vector.store"
+  output_vectorstore_dir: "D:/Repos2/im2203/examples/aiact_rag/vector.store"
 
 extraction:
   default: "pdfplumber"
@@ -23,7 +23,7 @@ chunking:
       separator: ["\n\n", "\n"]
 
 llm:
-  default: "lmstudio"
+  default: "openai"
   openai:
     name: "openai"
     model_name: "gpt-3.5-turbo"
@@ -62,7 +62,7 @@ embeddings:
 vectorstore:
   default: "faiss"
   faiss:
-    index_path: "D:/Repos2/im2203/src/im2203/aiact_rag/vector.store/faiss_index"
+    index_path: "D:/Repos2/im2203/examples/aiact_rag/vector.store/faiss_index"
 
 retrieval:
   default: "vectorstore"
