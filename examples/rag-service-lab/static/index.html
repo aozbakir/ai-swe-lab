@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAG PDF & Chat Interface</title>
+    <style>
+        body {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            margin: 20px;
+            font-weight: normal;
+        }
+
+        h2 { margin-top: 0; }
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: normal;
+        }
+        li, ul, ol {
+            font-weight: normal;
+        }
+
+        /* New grid layout: left (ingest), center (pdf), right (chat) */
+        .grid-container {
+            display: grid;
+            /* left: ingest box, center: pdf viewer, splitter, right: chat */
+            grid-template-columns: 420px 1fr 8px 400px;
+            grid-template-rows: 1fr;
+            gap: 20px;
+            height: 90vh;
+            align-items: stretch;
+        }
+
+        .ingestion-box {
+            grid-column: 1;
+            grid-row: 1;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            padding: 18px;
+            background: #f9f9f9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow-y: auto;
+        }
+
+        .empty-box {
+            display: none;
+        }
+
+        .pdf-viewer {
+            grid-column: 2;
+            grid-row: 1;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            height: auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pdf-viewer iframe {
+            width: 95%;
+            height: 85vh;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+
+        .chat-box {
+            grid-column: 4;
+            grid-row: 1;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            background: #f9f9f9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding: 18px;
+        }
+
+        .chat-box h2 {
+            margin-bottom: 10px;
+        }
+
+        .messages {
+            flex: 1;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            overflow-y: auto;
+            padding: 12px;
+            margin-bottom: 10px;
+            max-height: 400px;
+        }
+
+        .message {
+            display: block;
+            margin-bottom: 12px;
+            max-width: 80%;
+            padding: 10px 16px;
+            border-radius: 18px;
+            word-break: break-word;
+            font-size: 1em;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        .message.user {
+            background: #d0eaff;
+            color: #1a237e;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.assistant {
+            background: #fff;
+            color: #333;
+            margin-right: auto;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #e3f2fd;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1em;
+            color: #1976d2;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover {
+            background: #bbdefb;
+        }
+
+                /* Retrieved docs bubbles (scrollable frame) */
+                .retrieved-docs {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    /* expand to use most of the left column space while leaving room for header/buttons */
+                    max-height: calc(90vh - 220px);
+                    overflow-y: auto; /* make scrollable when content overflows */
+                    padding: 6px; /* small inner padding */
+                    background: rgba(255,255,255,0.9);
+                    border-radius: 8px;
+                    border: 1px solid rgba(0,0,0,0.04);
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+        .retrieved-doc {
+            align-self: stretch;
+            background: #fff8e1;
+            color: #333;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid #ffecb3;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            font-size: 0.85rem;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+        .retrieved-doc .meta {
+            font-size: 0.82rem;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        .input-container input {
+            display: none;
+        }
+
+        .input-container textarea {
+            width: 100%;
+            min-height: 60px;
+            max-height: 200px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+            resize: vertical;
+            line-height: 1.5;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .input-container button {
+            width: 100%;
+            margin-top: 4px;
+            padding: 10px 0;
+            border-radius: 8px;
+            border: none;
+            background: #1976d2;
+            color: #fff;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+        }
+        .input-container button:hover {
+            background: #1565c0;
+        }
+
+        button { cursor: pointer; }
+
+        /* Splitter between pdf and chat for resizing */
+        .splitter {
+            grid-column: 3;
+            grid-row: 1;
+            width: 8px;
+            background: linear-gradient(90deg, rgba(0,0,0,0.03), rgba(0,0,0,0.06));
+            cursor: col-resize;
+            border-radius: 4px;
+            align-self: stretch;
+            justify-self: center;
+        }
+
+        .config-section {
+            margin-bottom: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .config-header {
+            background: #1976d2;
+            color: #fff;
+            padding: 12px 16px;
+            font-size: 1.1em;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .config-header:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 16px;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        .config-section.active .config-header:after {
+            transform: translateY(-50%) rotate(-135deg);
+        }
+
+        .config-content {
+            padding: 16px;
+            background: #f9f9f9;
+        }
+
+        .config-param {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+        .param-box {
+            display: flex;
+            flex-direction: column;
+            background: #f5f8fd;
+            border: 1px solid #e0e0e0;
+            border-radius: 7px;
+            padding: 8px 14px 7px 14px;
+            margin-right: 12px;
+            margin-bottom: 8px;
+            min-width: 120px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .param-label {
+            font-size: 0.97em;
+            color: #1976d2;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .param-value {
+            font-size: 1.05em;
+            color: #333;
+            font-weight: 400;
+        }
+
+        /* Add CSS for 2x2 grid for chunking params */
+        .chunking-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 0px 12px;
+        }
+
+        /* Compact top config header: very small (max 5% of viewport height) */
+        .config-compact {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            background: #f5f8fd;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            color: #1976d2;
+            font-size: 0.72rem;
+            margin-bottom: 6px;
+            max-width: 100%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            overflow: hidden;
+            white-space: nowrap;
+            height: 5vh;
+            max-height: 5vh;
+            line-height: 1;
+        }
+        .config-header-top {
+            font-weight: 600;
+            color: #0d47a1;
+            font-size: 0.78rem;
+            flex: 0 0 auto;
+        }
+        .config-list-inline {
+            color: #333;
+            font-weight: 400;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            overflow: visible;
+            white-space: nowrap;
+            flex: 1 1 auto;
+            min-width: 0; /* allow ellipsis */
+            font-size: 0.72rem;
+        }
+
+        /* Header boxes inside config-compact */
+        .config-compact .param-box {
+            min-width: 90px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #e6eefc;
+            box-shadow: none;
+        }
+        /* Use normal weight for both labels and values per user request */
+        .config-compact .param-label { color: #1976d2; font-size: 0.68rem; font-weight: 400; }
+        .config-compact .param-value { color: #222; font-size: 0.78rem; font-weight: 400; }
+    </style>
+</head>
+<body>
+    <div id="configParams" class="config-compact">
+        <div class="config-header-top">Configuration</div>
+        <div id="configList" class="config-list-inline">Loading...</div>
+    </div>
+
+    <div class="grid-container">
+        <div class="ingestion-box">
+            <h2>Upload & Ingest PDF</h2>
+            <input type="file" id="fileInput" accept=".pdf"><br><br>
+            <button onclick="uploadFile()">Upload (Ingest)</button>
+            <button onclick="viewFile()">View (No Ingest)</button>
+            <div id="status"></div>
+            <div id="log" style="margin-top:10px;"></div>
+            <hr style="margin:18px 0;">
+                <div id="retrievedPanel" style="font-size:0.98em; color:#333;">
+                <h3 style="margin-top:0;">Retrieved Documents</h3>
+                <div id="retrievedDocs" class="retrieved-docs" style="display:none; margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <div class="pdf-viewer">
+            <iframe id="pdfViewer" src=""></iframe>
+        </div>
+
+        <div class="chat-box">
+            <h2>Chat Assistant</h2>
+            <div class="messages" id="chatMessages"></div>
+            <div class="input-container">
+                <textarea id="chatInput" placeholder="Type your message..." autocomplete="off"></textarea>
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const log = document.getElementById("log");
+        const status = document.getElementById("status");
+        const pdfViewer = document.getElementById("pdfViewer");
+        const chatMessages = document.getElementById("chatMessages");
+        const chatInput = document.getElementById("chatInput");
+        const chatBox = document.querySelector('.chat-box');
+
+        // Fetch and display config parameters
+        async function fetchConfigParams() {
+            const configList = document.getElementById("configList");
+            configList.textContent = "Loading...";
+            try {
+                const response = await fetch("/config");
+                const config = await response.json();
+
+                // Build compact boxes: Loader, Chunker, LLM, Embedding, Retriever
+                const loaderVal = config?.extraction?.default || '';
+                const chunkDefault = config?.chunking?.default || '';
+                const chunkSize = config?.chunking?.recursive?.chunk_size || '';
+                const chunkOverlap = config?.chunking?.recursive?.chunk_overlap || '';
+                const llmName = config?.llm?.openai?.name || '';
+                const llmModel = config?.llm?.openai?.model_name || '';
+                const embModel = config?.embeddings?.sentence_transformers?.model_name || '';
+                const retMetric = config?.retrieval?.vectorstore?.similarity_metric || '';
+                const retTopK = config?.retrieval?.vectorstore?.top_k || '';
+
+                // Build readable display strings for each small box
+                const loaderDisplay = loaderVal || '';
+                let chunkDisplay = chunkDefault || '';
+                if (chunkSize) {
+                    chunkDisplay += ` (${chunkSize}`;
+                    if (chunkOverlap) chunkDisplay += ` / ${chunkOverlap}`;
+                    chunkDisplay += `)`;
+                }
+                const llmDisplay = [llmName, llmModel].filter(Boolean).join(' / ');
+                const embDisplay = embModel || '';
+                const retDisplay = `${retMetric || ''}${retTopK ? ` / k=${retTopK}` : ''}`;
+
+                const html = `
+                    <div class="param-box"><span class="param-label">Loader</span><span class="param-value">${escapeHtml(loaderDisplay)}</span></div>
+                    <div class="param-box"><span class="param-label">Chunker</span><span class="param-value">${escapeHtml(chunkDisplay)}</span></div>
+                    <div class="param-box"><span class="param-label">LLM</span><span class="param-value">${escapeHtml(llmDisplay)}</span></div>
+                    <div class="param-box"><span class="param-label">Embedding</span><span class="param-value">${escapeHtml(embDisplay)}</span></div>
+                    <div class="param-box"><span class="param-label">Retriever</span><span class="param-value">${escapeHtml(retDisplay)}</span></div>
+                `;
+
+                configList.innerHTML = html;
+            } catch (err) {
+                configList.textContent = "Error loading config.";
+            }
+        }
+
+        // Small helper to escape HTML inserted into the header boxes
+        function escapeHtml(str) {
+            if (!str && str !== 0) return '';
+            return String(str).replace(/[&<>"']/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]; });
+        }
+
+        // Render main config sections as collapsible cards
+        function renderConfigSections(config) {
+            const mainSections = ["extraction", "chunking", "llm", "embeddings", "retrieval"];
+            let html = "";
+            for (const section of mainSections) {
+                if (!config[section]) continue;
+                html += `<div class='config-section'>`
+                    + `<div class='config-header'>${capitalize(section)} <span class='config-arrow'>&#9654;</span></div>`
+                    + `<div class='config-content'>${renderConfigParams(config[section])}</div>`
+                + `</div>`;
+            }
+            return html;
+        }
+
+        // Render parameters inside each section (flat, no indent, no bullets)
+        function renderConfigParams(obj) {
+            let html = "";
+            for (const key in obj) {
+                if (!obj.hasOwnProperty(key)) continue;
+                // Remove 'separator' and numeric keys from chunking
+                if (obj === window.lastChunkingObj && (key === 'separator' || !isNaN(key))) continue;
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    // Track chunking object for filtering
+                    if (key === 'chunking') window.lastChunkingObj = obj[key];
+                    html += renderConfigParams(obj[key]);
+                } else {
+                    html += `<div class='config-param'><span class='config-key'>${key}:</span> <span class='config-value'>${obj[key]}</span></div>`;
+                }
+            }
+            return html;
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Setup collapsible behavior for config sections
+        function setupConfigCollapsible() {
+            const sections = document.querySelectorAll('.config-section');
+            sections.forEach(section => {
+                const header = section.querySelector('.config-header');
+                header.addEventListener('click', () => {
+                    if (section.classList.contains('active')) {
+                        section.classList.remove('active');
+                    } else {
+                        sections.forEach(s => s.classList.remove('active'));
+                        section.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Initial fetch on page load and setup UI behaviors
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchConfigParams();
+            setupConfigCollapsible();
+            setupSplitter();
+        });
+
+        async function uploadFile() {
+            const fileInput = document.getElementById("fileInput");
+
+            if (!fileInput.files.length) {
+                alert("Please select a PDF file first.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            status.textContent = "Uploading...";
+
+            try {
+                const response = await fetch("/ingest", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    status.textContent = "Ingestion successful!";
+                    log.textContent += `[SUCCESS] Vector store path: ${result.vector_store_path}\n`;
+                    // Note: do NOT automatically display the PDF after ingest.
+                } else {
+                    status.textContent = "Ingestion failed!";
+                    log.textContent += `[ERROR] ${JSON.stringify(result.detail)}\n`;
+                }
+            } catch (err) {
+                status.textContent = "Error during upload!";
+                log.textContent += `[ERROR] ${err}\n`;
+            }
+        }
+
+        // View the selected PDF client-side without sending to server
+        function viewFile() {
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Please select a PDF file first.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                alert('Selected file is not a PDF.');
+                return;
+            }
+
+            // Create object URL and show in iframe
+            const fileURL = URL.createObjectURL(file);
+            pdfViewer.src = fileURL;
+            status.textContent = "Viewing PDF (not ingested).";
+
+            // Revoke object URL when iframe loads to free memory
+            pdfViewer.onload = () => {
+                try { URL.revokeObjectURL(fileURL); } catch (e) {}
+            };
+        }
+
+
+            // Render retrieved documents as bubble-like textboxes below the send button
+            function renderRetrievedDocs(docs) {
+                const container = document.getElementById('retrievedDocs');
+                if (!container) return;
+                container.innerHTML = '';
+                if (!docs || docs.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+
+                docs.forEach((doc, idx) => {
+                    const d = document.createElement('div');
+                    d.className = 'retrieved-doc';
+
+                    const meta = document.createElement('div');
+                    meta.className = 'meta';
+                    const pageInfo = (doc.page !== undefined && doc.page !== null) ? `Page ${doc.page}` : `Doc ${idx+1}`;
+                    const score = doc.score !== undefined ? ` • score: ${Math.round((doc.score||0)*100)/100}` : '';
+                    meta.textContent = `${pageInfo}${score}`;
+
+                    const content = document.createElement('div');
+                    const text = (doc.page_content || doc.content || doc.text || '');
+                    content.textContent = truncate(text, 280);
+
+                    d.appendChild(meta);
+                    d.appendChild(content);
+
+                    d.addEventListener('click', () => {
+                        // Try to highlight corresponding fragment in the PDF
+                        highlightPdfFragments([doc]);
+                    });
+
+                    container.appendChild(d);
+                });
+
+                container.style.display = 'flex';
+            }
+
+            function truncate(str, n) {
+                if (!str) return '';
+                return (str.length > n) ? str.slice(0, n-1) + '…' : str;
+            }
+
+
+    // Placeholder highlightPdfFragments:
+    function highlightPdfFragments(docs) {
+        docs.forEach(doc => {
+            // For now, just log the info
+            console.log(`Highlight on page ${doc.page}: ${doc.page_content}`);
+            // TODO: PDF.js integration for real highlighting
+        });
+    }
+
+        // Setup a draggable splitter between PDF viewer and chat box
+        function setupSplitter() {
+            const splitterId = 'splitter';
+            // If splitter not already in DOM, create it between pdf-viewer and chat-box
+            let splitter = document.getElementById(splitterId);
+            const container = document.querySelector('.grid-container');
+            if (!splitter) {
+                splitter = document.createElement('div');
+                splitter.id = splitterId;
+                splitter.className = 'splitter';
+                // Insert splitter before chat-box (chat-box is last child of grid-container)
+                const chatBoxEl = document.querySelector('.chat-box');
+                container.insertBefore(splitter, chatBoxEl);
+            }
+
+            let dragging = false;
+            let startX = 0;
+            let startPdfWidth = 0;
+            let startChatWidth = 0;
+            const minColWidth = 200; // px
+            const leftCol = 420; // px (ingest column)
+            const splitterWidth = 8; // px, matches CSS
+
+            splitter.addEventListener('mousedown', (e) => {
+                dragging = true;
+                startX = e.clientX;
+                const pdfRect = pdfViewer.getBoundingClientRect();
+                const chatRect = chatBox.getBoundingClientRect();
+                startPdfWidth = pdfRect.width;
+                startChatWidth = chatRect.width;
+                document.body.style.cursor = 'col-resize';
+                e.preventDefault();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!dragging) return;
+                const dx = e.clientX - startX;
+                let newPdf = startPdfWidth + dx;
+                let newChat = startChatWidth - dx;
+                const total = leftCol + startPdfWidth + splitterWidth + startChatWidth;
+
+                if (newPdf < minColWidth) {
+                    newPdf = minColWidth;
+                    newChat = total - leftCol - splitterWidth - newPdf;
+                }
+                if (newChat < minColWidth) {
+                    newChat = minColWidth;
+                    newPdf = total - leftCol - splitterWidth - newChat;
+                }
+
+                container.style.gridTemplateColumns = `${leftCol}px ${Math.round(newPdf)}px ${splitterWidth}px ${Math.round(newChat)}px`;
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (dragging) {
+                    dragging = false;
+                    document.body.style.cursor = '';
+                }
+            });
+        }
+        
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        appendMessage(message, "user");
+        chatInput.value = "";
+
+        try {
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+            appendMessage(data.response, "assistant");
+
+            // Highlight retrieved fragments in PDF and render retrieved-doc bubbles
+            if (data.retrieved_docs) {
+                highlightPdfFragments(data.retrieved_docs);
+                renderRetrievedDocs(data.retrieved_docs);
+            } else {
+                renderRetrievedDocs([]);
+            }
+        } catch (err) {
+            appendMessage("Error: Could not reach server.", "assistant");
+            console.error(err);
+        }
+    }
+
+        // Allow Enter to send, Shift+Enter for newline
+        chatInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement("div");
+            msgDiv.classList.add("message", sender);
+
+            if (sender === "assistant") {
+                // Message text span for copying
+                const msgText = document.createElement("span");
+                msgText.textContent = text;
+                msgDiv.appendChild(msgText);
+
+                // Copy button
+                const copyBtn = document.createElement("button");
+                copyBtn.className = "copy-btn";
+                copyBtn.title = "Copy";
+                copyBtn.innerHTML = "&#128203;"; // clipboard icon
+                copyBtn.onclick = function() {
+                    navigator.clipboard.writeText(text);
+                    copyBtn.innerHTML = "&#10003;"; // checkmark
+                    setTimeout(() => {
+                        copyBtn.innerHTML = "&#128203;";
+                    }, 1200);
+                };
+                msgDiv.appendChild(copyBtn);
+            } else {
+                msgDiv.textContent = text;
+            }
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+</html>
